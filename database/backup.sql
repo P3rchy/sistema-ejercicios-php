@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-12-2025 a las 20:09:15
+-- Tiempo de generación: 28-12-2025 a las 21:15:01
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -59,6 +59,21 @@ INSERT INTO `biblioteca_ejercicios` (`id`, `usuario_id`, `categoria_id`, `nombre
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `calificaciones_rutinas`
+--
+
+CREATE TABLE `calificaciones_rutinas` (
+  `id` int(11) NOT NULL,
+  `rutina_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `calificacion` int(11) NOT NULL CHECK (`calificacion` between 1 and 5),
+  `comentario` text DEFAULT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `categorias_ejercicios`
 --
 
@@ -85,6 +100,24 @@ INSERT INTO `categorias_ejercicios` (`id`, `nombre`, `icono`) VALUES
 (10, 'Pantorrillas', '🦵'),
 (11, 'Abdominales', '🔥'),
 (12, 'Core', '🔥');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `contenido_aprendizaje`
+--
+
+CREATE TABLE `contenido_aprendizaje` (
+  `id` int(11) NOT NULL,
+  `modulo_id` int(11) NOT NULL,
+  `creador_id` int(11) NOT NULL,
+  `titulo` varchar(100) NOT NULL,
+  `contenido` text DEFAULT NULL,
+  `video_url` varchar(255) DEFAULT NULL,
+  `imagen_url` varchar(255) DEFAULT NULL,
+  `orden` int(11) DEFAULT 0,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -135,7 +168,11 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (28, 8, 'Lunes', 3, 'pecho biceps'),
 (29, 8, 'Martes', 3, 'dorsale'),
 (30, 8, 'Miércoles', 3, 'piernas'),
-(31, 8, 'Jueves', 3, 'abdominales');
+(31, 8, 'Jueves', 3, 'abdominales'),
+(32, 9, 'Lunes', 3, 'pecho biceps'),
+(33, 9, 'Martes', 3, 'dorsale'),
+(34, 9, 'Miércoles', 3, 'piernas'),
+(35, 9, 'Domingo', 3, 'abs');
 
 -- --------------------------------------------------------
 
@@ -175,6 +212,25 @@ INSERT INTO `ejercicios` (`id`, `dia_rutina_id`, `usuario_id`, `orden`, `nombre_
 (8, 21, 2, 1, 'sentadilla', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 04:08:07'),
 (9, 24, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:22'),
 (10, 25, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:44');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ejercicios_basicos`
+--
+
+CREATE TABLE `ejercicios_basicos` (
+  `id` int(11) NOT NULL,
+  `rutina_id` int(11) NOT NULL,
+  `dia_semana` enum('Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo') NOT NULL,
+  `orden` int(11) NOT NULL COMMENT 'Orden del ejercicio dentro del día',
+  `nombre_ejercicio` varchar(100) NOT NULL,
+  `imagen_url` varchar(255) DEFAULT NULL,
+  `video_url` varchar(255) DEFAULT NULL,
+  `notas` text DEFAULT NULL,
+  `series_reps` varchar(50) DEFAULT NULL COMMENT 'Ej: 4 series, 15-20 reps',
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -247,6 +303,36 @@ CREATE TABLE `metricas_clientes` (
   `notas` text DEFAULT NULL,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulos_aprendizaje`
+--
+
+CREATE TABLE `modulos_aprendizaje` (
+  `id` int(11) NOT NULL,
+  `creador_id` int(11) NOT NULL,
+  `titulo` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `icono` varchar(10) DEFAULT '?',
+  `orden` int(11) DEFAULT 0,
+  `es_destacado` tinyint(1) DEFAULT 0 COMMENT 'Solo admin puede marcar como destacado',
+  `activo` tinyint(1) DEFAULT 1,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `modulos_aprendizaje`
+--
+
+INSERT INTO `modulos_aprendizaje` (`id`, `creador_id`, `titulo`, `descripcion`, `icono`, `orden`, `es_destacado`, `activo`, `fecha_creacion`) VALUES
+(1, 1, 'Ejercicios Básicos', 'Aprende los ejercicios fundamentales del entrenamiento', '💪', 1, 1, 1, '2025-12-28 20:01:26'),
+(2, 1, 'División Torso-Piernas', 'Guía completa sobre rutinas Torso-Piernas', '🏋️', 2, 1, 1, '2025-12-28 20:01:26'),
+(3, 1, 'Cronometrar Descanso', 'Aprende a gestionar tus tiempos de descanso', '⏱️', 3, 0, 1, '2025-12-28 20:01:26'),
+(4, 1, 'Ejercicios Multi-articulares', 'Ejercicios compuestos para máxima eficiencia', '🔥', 4, 1, 1, '2025-12-28 20:01:26'),
+(5, 1, 'Ejercicios Mono-articulares', 'Ejercicios de aislamiento para grupos específicos', '🎯', 5, 0, 1, '2025-12-28 20:01:26'),
+(6, 1, 'Bracing Abdominal', 'Técnica para proteger tu espalda y mejorar fuerza', '🛡️', 6, 1, 1, '2025-12-28 20:01:26');
 
 -- --------------------------------------------------------
 
@@ -348,7 +434,14 @@ CREATE TABLE `rutinas` (
   `usuario_id` int(11) NOT NULL,
   `nombre_rutina` varchar(100) NOT NULL,
   `descripcion` text DEFAULT NULL,
+  `descripcion_split` text DEFAULT NULL,
+  `video_explicativo` varchar(255) DEFAULT NULL,
+  `calificacion_promedio` decimal(2,1) DEFAULT 0.0,
+  `total_votos` int(11) DEFAULT 0,
   `num_dias_semana` int(11) NOT NULL COMMENT 'Días de entrenamiento por semana',
+  `tipo_rutina` enum('metodologica','basica') DEFAULT 'metodologica',
+  `genero` enum('masculino','femenino','unisex') DEFAULT 'unisex',
+  `nivel_experiencia` enum('principiante','intermedio','avanzado') DEFAULT 'principiante',
   `es_publico` tinyint(1) DEFAULT 0,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -357,15 +450,16 @@ CREATE TABLE `rutinas` (
 -- Volcado de datos para la tabla `rutinas`
 --
 
-INSERT INTO `rutinas` (`id`, `usuario_id`, `nombre_rutina`, `descripcion`, `num_dias_semana`, `es_publico`, `fecha_creacion`) VALUES
-(1, 1, 'mix pump', 'rutina de fuerza', 4, 0, '2025-12-28 02:39:20'),
-(2, 2, 'power gym', 'rutina de fuerza', 4, 0, '2025-12-28 02:48:59'),
-(3, 2, 'mix pump2', 'rutina de fuerza', 4, 0, '2025-12-28 02:57:55'),
-(4, 2, 'ful body 4 días', 'rutina todo el cuerpo', 4, 0, '2025-12-28 03:11:11'),
-(5, 2, 'mix pump', 'rutina fuerza', 3, 0, '2025-12-28 03:20:43'),
-(6, 2, 'mix pump', 'rutina fuerza', 4, 0, '2025-12-28 04:02:20'),
-(7, 1, 'mix pump', 'ljljk', 4, 0, '2025-12-28 05:12:03'),
-(8, 2, 'mix pump', 'rutina alterna', 4, 0, '2025-12-28 18:58:00');
+INSERT INTO `rutinas` (`id`, `usuario_id`, `nombre_rutina`, `descripcion`, `descripcion_split`, `video_explicativo`, `calificacion_promedio`, `total_votos`, `num_dias_semana`, `tipo_rutina`, `genero`, `nivel_experiencia`, `es_publico`, `fecha_creacion`) VALUES
+(1, 1, 'mix pump', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:39:20'),
+(2, 2, 'power gym', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:48:59'),
+(3, 2, 'mix pump2', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:57:55'),
+(4, 2, 'ful body 4 días', 'rutina todo el cuerpo', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 03:11:11'),
+(5, 2, 'mix pump', 'rutina fuerza', NULL, NULL, 0.0, 0, 3, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 03:20:43'),
+(6, 2, 'mix pump', 'rutina fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 04:02:20'),
+(7, 1, 'mix pump', 'ljljk', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 05:12:03'),
+(8, 2, 'mix pump', 'rutina alterna', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 18:58:00'),
+(9, 2, 'mix pump', 'adsfa', 'torso y piernas', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:12:03');
 
 -- --------------------------------------------------------
 
@@ -380,6 +474,21 @@ CREATE TABLE `rutinas_asignadas` (
   `cliente_id` int(11) NOT NULL,
   `fecha_asignacion` timestamp NOT NULL DEFAULT current_timestamp(),
   `activo` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sesiones_activas`
+--
+
+CREATE TABLE `sesiones_activas` (
+  `id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `session_id` varchar(255) NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `ultima_actividad` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -442,11 +551,27 @@ ALTER TABLE `biblioteca_ejercicios`
   ADD KEY `categoria_id` (`categoria_id`);
 
 --
+-- Indices de la tabla `calificaciones_rutinas`
+--
+ALTER TABLE `calificaciones_rutinas`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `usuario_rutina` (`usuario_id`,`rutina_id`),
+  ADD KEY `rutina_id` (`rutina_id`);
+
+--
 -- Indices de la tabla `categorias_ejercicios`
 --
 ALTER TABLE `categorias_ejercicios`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nombre` (`nombre`);
+
+--
+-- Indices de la tabla `contenido_aprendizaje`
+--
+ALTER TABLE `contenido_aprendizaje`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `modulo_id` (`modulo_id`),
+  ADD KEY `creador_id` (`creador_id`);
 
 --
 -- Indices de la tabla `dias_rutina`
@@ -462,6 +587,13 @@ ALTER TABLE `ejercicios`
   ADD PRIMARY KEY (`id`),
   ADD KEY `dia_rutina_id` (`dia_rutina_id`),
   ADD KEY `usuario_id` (`usuario_id`);
+
+--
+-- Indices de la tabla `ejercicios_basicos`
+--
+ALTER TABLE `ejercicios_basicos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `rutina_id` (`rutina_id`);
 
 --
 -- Indices de la tabla `entrenador_clientes`
@@ -494,6 +626,13 @@ ALTER TABLE `metricas_clientes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `entrenador_id` (`entrenador_id`),
   ADD KEY `idx_cliente_fecha` (`cliente_id`,`fecha_registro`);
+
+--
+-- Indices de la tabla `modulos_aprendizaje`
+--
+ALTER TABLE `modulos_aprendizaje`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `creador_id` (`creador_id`);
 
 --
 -- Indices de la tabla `notas_sesion`
@@ -541,6 +680,15 @@ ALTER TABLE `rutinas_asignadas`
   ADD KEY `cliente_id` (`cliente_id`);
 
 --
+-- Indices de la tabla `sesiones_activas`
+--
+ALTER TABLE `sesiones_activas`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `session_id` (`session_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `idx_ultima_actividad` (`ultima_actividad`);
+
+--
 -- Indices de la tabla `sesiones_ejercicio`
 --
 ALTER TABLE `sesiones_ejercicio`
@@ -566,22 +714,40 @@ ALTER TABLE `biblioteca_ejercicios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT de la tabla `calificaciones_rutinas`
+--
+ALTER TABLE `calificaciones_rutinas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `categorias_ejercicios`
 --
 ALTER TABLE `categorias_ejercicios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT de la tabla `contenido_aprendizaje`
+--
+ALTER TABLE `contenido_aprendizaje`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `dias_rutina`
 --
 ALTER TABLE `dias_rutina`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `ejercicios`
 --
 ALTER TABLE `ejercicios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de la tabla `ejercicios_basicos`
+--
+ALTER TABLE `ejercicios_basicos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `entrenador_clientes`
@@ -606,6 +772,12 @@ ALTER TABLE `historial_precios`
 --
 ALTER TABLE `metricas_clientes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `modulos_aprendizaje`
+--
+ALTER TABLE `modulos_aprendizaje`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `notas_sesion`
@@ -635,12 +807,18 @@ ALTER TABLE `planes_pro`
 -- AUTO_INCREMENT de la tabla `rutinas`
 --
 ALTER TABLE `rutinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `rutinas_asignadas`
 --
 ALTER TABLE `rutinas_asignadas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `sesiones_activas`
+--
+ALTER TABLE `sesiones_activas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -667,6 +845,20 @@ ALTER TABLE `biblioteca_ejercicios`
   ADD CONSTRAINT `biblioteca_ejercicios_ibfk_2` FOREIGN KEY (`categoria_id`) REFERENCES `categorias_ejercicios` (`id`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `calificaciones_rutinas`
+--
+ALTER TABLE `calificaciones_rutinas`
+  ADD CONSTRAINT `calificaciones_rutinas_ibfk_1` FOREIGN KEY (`rutina_id`) REFERENCES `rutinas` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `calificaciones_rutinas_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `contenido_aprendizaje`
+--
+ALTER TABLE `contenido_aprendizaje`
+  ADD CONSTRAINT `contenido_aprendizaje_ibfk_1` FOREIGN KEY (`modulo_id`) REFERENCES `modulos_aprendizaje` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `contenido_aprendizaje_ibfk_2` FOREIGN KEY (`creador_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `dias_rutina`
 --
 ALTER TABLE `dias_rutina`
@@ -678,6 +870,12 @@ ALTER TABLE `dias_rutina`
 ALTER TABLE `ejercicios`
   ADD CONSTRAINT `ejercicios_ibfk_1` FOREIGN KEY (`dia_rutina_id`) REFERENCES `dias_rutina` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `ejercicios_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `ejercicios_basicos`
+--
+ALTER TABLE `ejercicios_basicos`
+  ADD CONSTRAINT `ejercicios_basicos_ibfk_1` FOREIGN KEY (`rutina_id`) REFERENCES `rutinas` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `entrenador_clientes`
@@ -706,6 +904,12 @@ ALTER TABLE `historial_precios`
 ALTER TABLE `metricas_clientes`
   ADD CONSTRAINT `metricas_clientes_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `metricas_clientes_ibfk_2` FOREIGN KEY (`entrenador_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `modulos_aprendizaje`
+--
+ALTER TABLE `modulos_aprendizaje`
+  ADD CONSTRAINT `modulos_aprendizaje_ibfk_1` FOREIGN KEY (`creador_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `notas_sesion`
@@ -739,6 +943,12 @@ ALTER TABLE `rutinas_asignadas`
   ADD CONSTRAINT `rutinas_asignadas_ibfk_1` FOREIGN KEY (`rutina_id`) REFERENCES `rutinas` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `rutinas_asignadas_ibfk_2` FOREIGN KEY (`entrenador_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `rutinas_asignadas_ibfk_3` FOREIGN KEY (`cliente_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `sesiones_activas`
+--
+ALTER TABLE `sesiones_activas`
+  ADD CONSTRAINT `sesiones_activas_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `sesiones_ejercicio`
