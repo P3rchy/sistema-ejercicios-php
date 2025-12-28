@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-12-2025 a las 21:15:01
+-- Tiempo de generación: 28-12-2025 a las 23:38:56
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -157,10 +157,6 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (17, 5, 'Lunes', 3, 'pecho espalda biceps'),
 (18, 5, 'Martes', 3, 'cuadriceps-femorales-piernas'),
 (19, 5, 'Viernes', 3, 'abdomnales y piernas'),
-(20, 6, 'Lunes', 3, 'pecho espalda biceps'),
-(21, 6, 'Martes', 3, 'cuadriceps-femorales-piernas'),
-(22, 6, 'Miércoles', 3, 'abodminales y piernas'),
-(23, 6, 'Jueves', 3, 'pecho, piernas'),
 (24, 7, 'Lunes', 3, 'pecho espalda biceps'),
 (25, 7, 'Martes', 3, 'cuadriceps-femorales-piernas'),
 (26, 7, 'Miércoles', 3, 'abodminales y piernas'),
@@ -172,7 +168,22 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (32, 9, 'Lunes', 3, 'pecho biceps'),
 (33, 9, 'Martes', 3, 'dorsale'),
 (34, 9, 'Miércoles', 3, 'piernas'),
-(35, 9, 'Domingo', 3, 'abs');
+(35, 9, 'Domingo', 3, 'abs'),
+(36, 10, 'Lunes', 3, 'pecho biceps'),
+(37, 10, 'Martes', 3, 'dorsale'),
+(38, 10, 'Viernes', 3, 'piernas'),
+(39, 10, 'Sábado', 3, 'abs'),
+(40, 11, 'Lunes', 3, ''),
+(41, 11, 'Viernes', 3, ''),
+(42, 11, 'Sábado', 3, ''),
+(43, 11, 'Domingo', 3, ''),
+(44, 12, 'Lunes', 3, 'pecho espalda biceps'),
+(45, 12, 'Martes', 3, 'cuadriceps-femorales-piernas'),
+(46, 12, 'Viernes', 3, 'sdf'),
+(47, 12, 'Sábado', 3, 'daf'),
+(48, 13, 'Lunes', 3, 'cuadriceps gluteos'),
+(49, 13, 'Miércoles', 3, 'femorales y gluteos'),
+(50, 13, 'Viernes', 3, 'solo gluteos');
 
 -- --------------------------------------------------------
 
@@ -208,10 +219,21 @@ INSERT INTO `ejercicios` (`id`, `dia_rutina_id`, `usuario_id`, `orden`, `nombre_
 (4, 17, 2, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 4, 4, 2, 0, '2-3', '2025-12-28 03:21:07'),
 (5, 19, 2, 1, 'sentadilla', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 4, 4, 2, 0, '2-3', '2025-12-28 03:33:12'),
 (6, 19, 2, 2, 'crunch', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 03:34:49'),
-(7, 20, 2, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 04:03:17'),
-(8, 21, 2, 1, 'sentadilla', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 04:08:07'),
 (9, 24, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:22'),
-(10, 25, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:44');
+(10, 25, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:44'),
+(11, 36, 2, 1, 'peck fly', '', '', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:33:52'),
+(12, 36, 2, 2, 'press plano', 'https://static.strengthlevel.com/images/exercises/bench-press/bench-press-800.jpg', 'https://www.youtube.com/watch?v=ICaZxO7RmKs', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:37:02'),
+(13, 36, 2, 3, 'push up', '', '', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:37:23'),
+(14, 37, 2, 1, 'jalon al pecho', 'https://eresfitness.com/polea-al-pecho/', 'https://eresfitness.com/wp-content/uploads/2020/02/01971105-Cable-Pulldown-pro-lat-bar_Back_max.png', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:38:49'),
+(15, 37, 2, 2, 'remo', 'https://eresfitness.com/wp-content/uploads/2020/02/02391105-Cable-Straight-Back-Seated-Row_Back_max.png', 'https://www.youtube.com/watch?v=gTCmsy45usM', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:40:36'),
+(16, 37, 2, 3, 'serrucho con mancuerna', 'https://i.blogs.es/ff532c/remo/650_1200.jpg', 'https://www.youtube.com/watch?v=VnSMvo2xRL8', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:41:40'),
+(17, 38, 2, 1, 'sentadillas con mancuerna', 'https://static.strengthlevel.com/images/exercises/dumbbell-squat/dumbbell-squat-800.jpg', 'https://www.youtube.com/watch?v=MtCgXp8mGYU', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:43:02'),
+(18, 38, 2, 2, 'leg extension', 'https://static.strengthlevel.com/images/exercises/leg-extension/leg-extension-800.jpg', 'https://www.youtube.com/watch?v=m0FOpMEgero', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:43:48'),
+(19, 38, 2, 3, 'leg curl tumbado', 'https://i.ytimg.com/vi/sRMO3SbTqjk/maxresdefault.jpg', 'https://www.youtube.com/watch?v=VEAv16_YIF0', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:44:33'),
+(20, 39, 2, 1, 'Crunchs abdominal', 'https://hips.hearstapps.com/hmg-prod/images/crunch-1588842220.jpg', 'https://www.youtube.com/watch?v=OsUz898onTE', 'Top Set', 3, 4, 2, 0, '0', '2025-12-28 20:45:37'),
+(21, 39, 2, 2, 'ab coaster', 'https://m.media-amazon.com/images/I/51RslMwLFBL.jpg', 'https://www.youtube.com/watch?v=ah9Cd0encTQ', 'Top Set', 3, 4, 2, 0, '1', '2025-12-28 20:46:44'),
+(22, 39, 2, 3, 'plank', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXyu5xM7v0ybi15gAnPUDvNk2adyEwyZ4Tqg&s', 'https://www.youtube.com/watch?v=pvIjsG5Svck', 'Top Set', 3, 4, 2, 0, '0', '2025-12-28 20:47:25'),
+(23, 48, 2, 1, 'sentadillas con barra', 'https://i0.wp.com/menshealthlatam.com/wp-content/uploads/2023/08/manera-correcta-de-hacer-una-sentadilla-con-barra-en-la-espalda.jpg', 'https://www.youtube.com/shorts/4xVs7iOSd2Qhttps://www.youtube.com/shorts/4xVs7iOSd2Q', 'al fallo', 4, 4, 2, 0, '0', '2025-12-28 22:29:58');
 
 -- --------------------------------------------------------
 
@@ -349,6 +371,13 @@ CREATE TABLE `notas_sesion` (
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `notas_sesion`
+--
+
+INSERT INTO `notas_sesion` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `nota`, `fecha_creacion`) VALUES
+(1, 11, 2, 1, 'hola dolor en hombro', '2025-12-28 21:23:29');
+
 -- --------------------------------------------------------
 
 --
@@ -456,10 +485,13 @@ INSERT INTO `rutinas` (`id`, `usuario_id`, `nombre_rutina`, `descripcion`, `desc
 (3, 2, 'mix pump2', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:57:55'),
 (4, 2, 'ful body 4 días', 'rutina todo el cuerpo', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 03:11:11'),
 (5, 2, 'mix pump', 'rutina fuerza', NULL, NULL, 0.0, 0, 3, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 03:20:43'),
-(6, 2, 'mix pump', 'rutina fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 04:02:20'),
 (7, 1, 'mix pump', 'ljljk', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 05:12:03'),
 (8, 2, 'mix pump', 'rutina alterna', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 18:58:00'),
-(9, 2, 'mix pump', 'adsfa', 'torso y piernas', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:12:03');
+(9, 2, 'mix pump', 'adsfa', 'torso y piernas', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:12:03'),
+(10, 2, 'powerfit', 'adf', 'asdf', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:33:18'),
+(11, 2, 'Push pull leg', 'adsf', 'asdf', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 22:05:59'),
+(12, 2, 'adf', 'adf', '', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 22:12:40'),
+(13, 2, 'booty power', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', '', 0.0, 0, 3, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-28 22:26:00');
 
 -- --------------------------------------------------------
 
@@ -509,6 +541,19 @@ CREATE TABLE `sesiones_ejercicio` (
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
   `fecha_realizado` date DEFAULT NULL COMMENT 'Fecha en que se realizó el entrenamiento'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `sesiones_ejercicio`
+--
+
+INSERT INTO `sesiones_ejercicio` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `num_serie`, `peso`, `unidad_peso`, `repeticiones`, `fecha_registro`, `fecha_realizado`) VALUES
+(1, 11, 2, 1, 1, 105.00, 'kg', 12, '2025-12-28 21:23:07', '2025-12-28'),
+(2, 11, 2, 1, 2, 100.00, 'kg', 10, '2025-12-28 21:23:38', '2025-12-28'),
+(3, 11, 2, 1, 3, 90.00, 'kg', 12, '2025-12-28 21:23:42', '2025-12-28'),
+(4, 12, 2, 1, 1, 100.00, 'kg', 15, '2025-12-28 22:17:59', '2025-12-28'),
+(5, 23, 2, 1, 1, 100.00, 'kg', 0, '2025-12-28 22:31:46', '2025-12-28'),
+(6, 23, 2, 2, 2, 200.00, 'kg', 0, '2025-12-28 22:31:51', '2025-12-28'),
+(7, 23, 2, 2, 1, 0.00, 'kg', 0, '2025-12-28 22:31:56', '2025-12-28');
 
 -- --------------------------------------------------------
 
@@ -735,13 +780,13 @@ ALTER TABLE `contenido_aprendizaje`
 -- AUTO_INCREMENT de la tabla `dias_rutina`
 --
 ALTER TABLE `dias_rutina`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT de la tabla `ejercicios`
 --
 ALTER TABLE `ejercicios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `ejercicios_basicos`
@@ -783,7 +828,7 @@ ALTER TABLE `modulos_aprendizaje`
 -- AUTO_INCREMENT de la tabla `notas_sesion`
 --
 ALTER TABLE `notas_sesion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -807,7 +852,7 @@ ALTER TABLE `planes_pro`
 -- AUTO_INCREMENT de la tabla `rutinas`
 --
 ALTER TABLE `rutinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `rutinas_asignadas`
@@ -825,7 +870,7 @@ ALTER TABLE `sesiones_activas`
 -- AUTO_INCREMENT de la tabla `sesiones_ejercicio`
 --
 ALTER TABLE `sesiones_ejercicio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
