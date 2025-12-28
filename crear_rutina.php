@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <input type="number" name="ejercicios_${dia}" min="1" max="${maxEjercicios}" value="3" required style="width: 80px;">
                             <span class="helper-text">ejercicios</span>
                         </div>
-                        <input type="text" name="grupos_${dia}" placeholder="Grupos musculares (ej: Pecho, Bíceps, Abs)" style="width: 100%; margin-top: 5px;">
+                        <input type="text" name="grupos_${dia}" placeholder="Grupos musculares (ej: Pecho, Bíceps, Abs)" style="width: 100%; margin-top: 5px;" required>
                     </div>
                 `;
                 container.appendChild(div);
