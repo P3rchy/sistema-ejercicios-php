@@ -8,6 +8,12 @@ $exito = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre_rutina = trim($_POST['nombre_rutina']);
     $descripcion = trim($_POST['descripcion']);
+    $descripcion_split = trim($_POST['descripcion_split'] ?? '');
+    $video_explicativo = trim($_POST['video_explicativo'] ?? '');
+    $genero = $_POST['genero'] ?? 'unisex';
+    $nivel_experiencia = $_POST['nivel_experiencia'] ?? 'principiante';
+    $es_publico = isset($_POST['es_publico']) ? 1 : 0;
+    
     $dias_seleccionados = isset($_POST['dias']) ? $_POST['dias'] : [];
     $ejercicios_por_dia = [];
     $grupos_musculares = [];
@@ -24,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = 'Debes seleccionar al menos un día de entrenamiento';
     } elseif ($_SESSION['tipo_usuario'] == 'standard' && count($dias_seleccionados) > 4) {
         $error = 'Los usuarios Standard pueden crear rutinas de máximo 4 días. Actualiza a Premium para días ilimitados.';
+    } elseif ($_SESSION['tipo_usuario'] == 'standard' && $es_publico) {
+        $error = 'Solo los usuarios Premium pueden hacer públicas sus rutinas';
     } else {
         // Validar límite de ejercicios por día para usuarios standard
         foreach ($ejercicios_por_dia as $dia => $num_ejercicios) {
@@ -36,10 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (empty($error)) {
             $conn = getConnection();
             
-            // Crear la rutina
+            // Crear la rutina con los nuevos campos
             $num_dias = count($dias_seleccionados);
-            $stmt = $conn->prepare("INSERT INTO rutinas (usuario_id, nombre_rutina, descripcion, num_dias_semana) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("issi", $_SESSION['usuario_id'], $nombre_rutina, $descripcion, $num_dias);
+            $tipo_rutina = 'metodologica'; // Este archivo es para rutinas metodológicas
+            
+            $stmt = $conn->prepare("INSERT INTO rutinas (usuario_id, nombre_rutina, descripcion, descripcion_split, video_explicativo, num_dias_semana, tipo_rutina, genero, nivel_experiencia, es_publico) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("issssisssi", $_SESSION['usuario_id'], $nombre_rutina, $descripcion, $descripcion_split, $video_explicativo, $num_dias, $tipo_rutina, $genero, $nivel_experiencia, $es_publico);
             
             if ($stmt->execute()) {
                 $rutina_id = $conn->insert_id;
@@ -112,6 +122,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <textarea id="descripcion" name="descripcion" 
                                   placeholder="Describe tu rutina, objetivos, etc..."></textarea>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcion_split"><span class="icon">📋</span>Descripción del Split (Opcional)</label>
+                        <textarea id="descripcion_split" name="descripcion_split" 
+                                  placeholder="Explica cómo está estructurado el split de la rutina. Ej: Día 1: Pecho/Tríceps, Día 2: Espalda/Bíceps..."></textarea>
+                        <small style="color: #666; font-size: 12px;">Ayuda a entender mejor la distribución de grupos musculares</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="video_explicativo"><span class="icon">🎥</span>Video Explicativo (Opcional)</label>
+                        <input type="url" id="video_explicativo" name="video_explicativo" 
+                               placeholder="https://www.youtube.com/watch?v=...">
+                        <small style="color: #666; font-size: 12px;">Link a YouTube u otra plataforma explicando la rutina</small>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label for="genero"><span class="icon">⚧</span>Género Objetivo</label>
+                            <select id="genero" name="genero" required>
+                                <option value="unisex">Unisex</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nivel_experiencia"><span class="icon">🎯</span>Nivel</label>
+                            <select id="nivel_experiencia" name="nivel_experiencia" required>
+                                <option value="principiante">Principiante</option>
+                                <option value="intermedio">Intermedio</option>
+                                <option value="avanzado">Avanzado</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <?php if ($_SESSION['tipo_usuario'] != 'standard'): ?>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" name="es_publico" id="es_publico" value="1">
+                            <span><span class="icon">🌐</span>Hacer pública esta rutina</span>
+                        </label>
+                        <small style="color: #666; font-size: 12px;">
+                            Otros usuarios podrán ver y copiar tu rutina. Recibirás crédito como creador.
+                        </small>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Selección de Días -->
