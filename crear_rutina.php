@@ -82,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Rutina - Sistema de Entrenamiento</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="notifications.css">
 </head>
 <body>
     <div class="navbar">
@@ -159,13 +160,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     <?php if ($_SESSION['tipo_usuario'] != 'standard'): ?>
                     <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <input type="checkbox" name="es_publico" id="es_publico" value="1">
-                            <span><span class="icon">🌐</span>Hacer pública esta rutina</span>
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                            🌐 Visibilidad de la Rutina
                         </label>
-                        <small style="color: #666; font-size: 12px;">
-                            Otros usuarios podrán ver y copiar tu rutina. Recibirás crédito como creador.
-                        </small>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                            <div class="checkbox-group" style="margin-bottom: 10px;">
+                                <input type="checkbox" name="es_publico" id="es_publico" value="1">
+                                <label for="es_publico" style="margin: 0; font-weight: bold;">
+                                    Hacer pública esta rutina
+                                </label>
+                            </div>
+                            <p style="margin: 0; font-size: 14px; color: #666;">
+                                Las rutinas públicas son visibles para todos los usuarios en el marketplace.
+                            </p>
+                        </div>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -174,10 +182,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-section">
                     <div class="section-title">📅 Días de Entrenamiento</div>
                     <p class="helper-text">Selecciona los días en los que entrenarás (máximo 4 días para usuarios Standard)</p>
-                    
-                    <div id="alertDias" class="alert-limite" style="display: none;">
-                        ⚠️ Has alcanzado el límite de <strong><?php echo $_SESSION['tipo_usuario'] == 'standard' ? '4' : '7'; ?> días</strong> para usuarios <?php echo ucfirst($_SESSION['tipo_usuario']); ?>
-                    </div>
                     
                     <div class="dias-grid">
                         <?php
@@ -216,20 +220,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const checkbox = document.getElementById('dia_' + dia);
             const container = document.getElementById('ejerciciosContainer');
             const ejerciciosSection = document.getElementById('ejerciciosPorDia');
-            const alertDias = document.getElementById('alertDias');
             
             // Verificar límite de días
             const diasSeleccionados = document.querySelectorAll('input[name="dias[]"]:checked').length;
             
             if (diasSeleccionados > maxDias) {
                 checkbox.checked = false;
-                alertDias.style.display = 'block';
-                setTimeout(() => {
-                    alertDias.style.display = 'none';
-                }, 4000);
+                showToast(`Plan ${tipoUsuario}: Máximo ${maxDias} días por semana`, 'warning');
                 return;
-            } else {
-                alertDias.style.display = 'none';
             }
             
             if (checkbox.checked) {
@@ -260,5 +258,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     </script>
+    
+    <!-- Modal de confirmación -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">Confirmar acción</div>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn" onclick="confirmAction()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script src="notifications.js"></script>
 </body>
 </html>

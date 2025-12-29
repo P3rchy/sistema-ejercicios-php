@@ -176,6 +176,15 @@ $conn->close();
             background: #e0a800;
         }
         
+        .btn-duplicar {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-duplicar:hover {
+            background: #138496;
+        }
+        
         .btn-eliminar {
             background: #dc3545;
             color: white;
@@ -270,6 +279,161 @@ $conn->close();
             border-radius: 5px;
             font-size: 14px;
             cursor: pointer;
+        }
+        
+        /* Modal de confirmación custom */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: modalSlideUp 0.3s ease;
+        }
+        
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .modal-message {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .modal-btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .modal-btn-cancel:hover {
+            background: #d0d0d0;
+        }
+        
+        .modal-btn-confirm {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .modal-btn-confirm:hover {
+            background: #138496;
+        }
+        
+        .modal-btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .modal-btn-delete:hover {
+            background: #c82333;
+        }
+        
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.success {
+            background: #4caf50;
+        }
+        
+        .toast.error {
+            background: #f44336;
+        }
+        
+        .toast.warning {
+            background: #ff9800;
+            color: #000;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .toast-container {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            .toast {
+                min-width: auto;
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -444,6 +608,10 @@ $conn->close();
                             <a href="<?php echo $editar_url; ?>?id=<?php echo $rutina['id']; ?>" class="btn-accion btn-editar">
                                 ✏️ Editar
                             </a>
+                            <button onclick="duplicarRutina(<?php echo $rutina['id']; ?>, '<?php echo htmlspecialchars($rutina['nombre_rutina']); ?>')" 
+                                    class="btn-accion btn-duplicar">
+                                📋 Duplicar
+                            </button>
                             <button onclick="confirmarEliminar(<?php echo $rutina['id']; ?>, '<?php echo htmlspecialchars($rutina['nombre_rutina']); ?>')" 
                                     class="btn-accion btn-eliminar">
                                 🗑️ Eliminar
@@ -455,7 +623,62 @@ $conn->close();
         <?php endif; ?>
     </div>
     
+    <!-- Modal de confirmación -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">Confirmar acción</div>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn" onclick="confirmAction()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <script>
+        let modalCallback = null;
+        
+        function showModal(title, message, callback, isDelete = false) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            confirmBtn.className = 'modal-btn ' + (isDelete ? 'modal-btn-delete' : 'modal-btn-confirm');
+            
+            modalCallback = callback;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            modalCallback = null;
+        }
+        
+        function confirmAction() {
+            if (modalCallback) modalCallback();
+            closeModal();
+        }
+        
+        // Sistema de toasts
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+            toast.innerHTML = `<span style="font-size: 20px;">${icon}</span><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
         function filtrarRutinas() {
             const tipo = document.getElementById('filtroTipo').value;
             const nivel = document.getElementById('filtroNivel').value;
@@ -480,10 +703,39 @@ $conn->close();
             });
         }
         
+        function duplicarRutina(id, nombre) {
+            showModal(
+                '¿Duplicar rutina?',
+                `Se creará "${nombre} - Duplicado". Los registros de entrenamiento NO se copiarán.`,
+                () => {
+                    fetch('duplicar_rutina.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'id=' + id
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Rutina duplicada exitosamente', 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    })
+                    .catch(() => showToast('Error al duplicar rutina', 'error'));
+                }
+            );
+        }
+        
         function confirmarEliminar(id, nombre) {
-            if (confirm(`¿Estás seguro de eliminar la rutina "${nombre}"?\n\nEsta acción no se puede deshacer y eliminará todos los ejercicios asociados.`)) {
-                window.location.href = 'eliminar_rutina.php?id=' + id;
-            }
+            showModal(
+                '¿Eliminar rutina?',
+                `¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`,
+                () => {
+                    window.location.href = 'eliminar_rutina.php?id=' + id;
+                },
+                true
+            );
         }
     </script>
 </body>

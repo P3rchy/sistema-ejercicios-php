@@ -80,18 +80,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($nombre_ejercicio)) {
         $error = 'El nombre del ejercicio es obligatorio';
     } else {
-        $stmt = $conn->prepare("INSERT INTO ejercicios (dia_rutina_id, usuario_id, orden, nombre_ejercicio, imagen_url, video_url, objetivo_serie, num_series, num_sesiones, descanso_minutos, descanso_segundos, rir_rpe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiissssiiiis", $dia_rutina_id, $_SESSION['usuario_id'], $orden, $nombre_ejercicio, $imagen_url, $video_url, $objetivo_serie, $num_series, $num_sesiones, $descanso_minutos, $descanso_segundos, $rir_rpe);
-        
-        if ($stmt->execute()) {
-            $exito = 'Ejercicio agregado exitosamente';
-            header("refresh:1;url=agregar_ejercicios.php?rutina_id=$rutina_id");
+        // Validar límite de Standard
+        if ($_SESSION['tipo_usuario'] == 'standard') {
+            $stmt = $conn->prepare("SELECT COUNT(*) as count FROM ejercicios WHERE dia_rutina_id = ?");
+            $stmt->bind_param("i", $dia_rutina_id);
+            $stmt->execute();
+            $count_result = $stmt->get_result()->fetch_assoc();
+            
+            if ($count_result['count'] >= 3) {
+                $error = 'Plan Standard: Máximo 3 ejercicios por día. Actualiza a Premium para agregar más.';
+                $stmt->close();
+            } else {
+                $stmt->close();
+                
+                $stmt = $conn->prepare("INSERT INTO ejercicios (dia_rutina_id, usuario_id, orden, nombre_ejercicio, imagen_url, video_url, objetivo_serie, num_series, num_sesiones, descanso_minutos, descanso_segundos, rir_rpe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("iiissssiiiis", $dia_rutina_id, $_SESSION['usuario_id'], $orden, $nombre_ejercicio, $imagen_url, $video_url, $objetivo_serie, $num_series, $num_sesiones, $descanso_minutos, $descanso_segundos, $rir_rpe);
+                
+                if ($stmt->execute()) {
+                    $exito = 'Ejercicio agregado exitosamente';
+                    header("refresh:1;url=agregar_ejercicios.php?rutina_id=$rutina_id");
+                } else {
+                    $error = 'Error al agregar el ejercicio';
+                }
+                $stmt->close();
+            }
         } else {
-            $error = 'Error al agregar el ejercicio';
+            $stmt = $conn->prepare("INSERT INTO ejercicios (dia_rutina_id, usuario_id, orden, nombre_ejercicio, imagen_url, video_url, objetivo_serie, num_series, num_sesiones, descanso_minutos, descanso_segundos, rir_rpe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("iiissssiiiis", $dia_rutina_id, $_SESSION['usuario_id'], $orden, $nombre_ejercicio, $imagen_url, $video_url, $objetivo_serie, $num_series, $num_sesiones, $descanso_minutos, $descanso_segundos, $rir_rpe);
+            
+            if ($stmt->execute()) {
+                $exito = 'Ejercicio agregado exitosamente';
+                header("refresh:1;url=agregar_ejercicios.php?rutina_id=$rutina_id");
+            } else {
+                $error = 'Error al agregar el ejercicio';
+            }
+            $stmt->close();
         }
     }
-    
-    $stmt->close();
 }
 
 $conn->close();
@@ -134,7 +159,14 @@ if (!$siguiente_dia) {
     }
 }
 
-$rutina_completa = ($siguiente_dia === null);
+// Si aún no hay día seleccionado, usar el primer día
+if (!$siguiente_dia && !empty($dias)) {
+    $siguiente_dia = $dias[0];
+    $ejercicios_dia_count = isset($ejercicios_por_dia[$siguiente_dia['dia_semana']]) ? count($ejercicios_por_dia[$siguiente_dia['dia_semana']]) : 0;
+    $siguiente_orden = $ejercicios_dia_count + 1;
+}
+
+$rutina_completa = false; // Siempre permitir agregar ejercicios
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -143,11 +175,38 @@ $rutina_completa = ($siguiente_dia === null);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar Ejercicios - <?php echo htmlspecialchars($rutina['nombre_rutina']); ?></title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .ejercicio-mini {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+        .btn-icon-small {
+            background: #f0f0f0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .btn-icon-small:hover {
+            background: #667eea;
+            transform: scale(1.1);
+        }
+        .btn-danger:hover {
+            background: #f44336;
+        }
+    </style>
 </head>
 <body>
     <div class="navbar">
         <h1>💪 Agregar Ejercicios</h1>
-        <a href="index.php" class="btn-volver">← Volver al Inicio</a>
+        <a href="javascript:history.back()" class="btn-volver">← Volver</a>
     </div>
     
     <div class="container">
@@ -199,16 +258,35 @@ $rutina_completa = ($siguiente_dia === null);
                                 <div class="ejercicios-lista">
                                     <?php foreach ($ejercicios_dia as $ej): ?>
                                         <div class="ejercicio-mini">
-                                            <strong><?php echo $ej['orden']; ?>.</strong> 
-                                            <?php echo htmlspecialchars($ej['nombre_ejercicio']); ?>
-                                            <span class="ejercicio-info">(<?php echo $ej['num_series']; ?>x<?php echo $ej['num_sesiones']; ?>)</span>
+                                            <div style="flex: 1;">
+                                                <strong><?php echo $ej['orden']; ?>.</strong> 
+                                                <?php echo htmlspecialchars($ej['nombre_ejercicio']); ?>
+                                                <span class="ejercicio-info">(<?php echo $ej['num_series']; ?>x<?php echo $ej['num_sesiones']; ?>)</span>
+                                            </div>
+                                            <div style="display: flex; gap: 5px;">
+                                                <button class="btn-icon-small" onclick="editarEjercicio(<?php echo $ej['id']; ?>)" title="Editar">✏️</button>
+                                                <button class="btn-icon-small btn-danger" onclick="eliminarEjercicio(<?php echo $ej['id']; ?>, '<?php echo htmlspecialchars($ej['nombre_ejercicio']); ?>')" title="Eliminar">🗑️</button>
+                                            </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                                <?php if (!$completo): ?>
+                                <?php 
+                                // Verificar si puede agregar más ejercicios
+                                $puede_agregar = true;
+                                if ($_SESSION['tipo_usuario'] == 'standard' && $ejercicios_count >= 3) {
+                                    $puede_agregar = false;
+                                }
+                                
+                                if (!$completo && $puede_agregar): 
+                                ?>
                                     <a href="?rutina_id=<?php echo $rutina_id; ?>&dia=<?php echo urlencode($dia['dia_semana']); ?>" class="btn-agregar-dia">
                                         ➕ Agregar más ejercicios
                                     </a>
+                                <?php elseif (!$completo && !$puede_agregar): ?>
+                                    <div style="background: #fff3e0; padding: 10px; border-radius: 6px; text-align: center; font-size: 14px; margin-top: 10px;">
+                                        ⚠️ Plan Standard: Máximo 3 ejercicios por día. 
+                                        <a href="planes.php" style="color: #667eea; font-weight: bold;">Actualizar</a>
+                                    </div>
                                 <?php endif; ?>
                             <?php else: ?>
                                 <p class="no-ejercicios">Sin ejercicios aún</p>
@@ -222,7 +300,24 @@ $rutina_completa = ($siguiente_dia === null);
             </div>
         </div>
         
-        <?php if ($rutina_completa): ?>
+        <?php 
+        // Verificar si el usuario puede agregar más ejercicios
+        $puede_agregar_ejercicio = true;
+        $mensaje_bloqueo = '';
+        
+        if ($siguiente_dia && $_SESSION['tipo_usuario'] == 'standard' && $dia_seleccionado) {
+            // Solo validar si el usuario seleccionó un día específico
+            $ejercicios_dia_actual = isset($ejercicios_por_dia[$siguiente_dia['dia_semana']]) 
+                ? count($ejercicios_por_dia[$siguiente_dia['dia_semana']]) 
+                : 0;
+            
+            if ($ejercicios_dia_actual >= 3) {
+                $puede_agregar_ejercicio = false;
+                $mensaje_bloqueo = 'Ya tienes ' . $ejercicios_dia_actual . ' ejercicios en ' . $siguiente_dia['dia_semana'] . '. Plan Standard permite máximo 3 ejercicios por día.';
+            }
+        }
+        
+        if ($rutina_completa): ?>
             <!-- Rutina completada -->
             <div class="card">
                 <div class="mensaje exito">
@@ -231,6 +326,20 @@ $rutina_completa = ($siguiente_dia === null);
                 <h3>🎯 ¿Qué sigue?</h3>
                 <p style="margin: 15px 0;">Ahora puedes comenzar a registrar tus sesiones de entrenamiento.</p>
                 <a href="mis_rutinas.php" class="btn-primary">Ver Mis Rutinas</a>
+            </div>
+        <?php elseif (!$puede_agregar_ejercicio): ?>
+            <!-- Bloqueado por límite Standard -->
+            <div class="card">
+                <div class="mensaje" style="background: #fff3e0; color: #000; border-left: 4px solid #ff9800;">
+                    ⚠️ <?php echo $mensaje_bloqueo; ?>
+                </div>
+                <p style="margin: 15px 0;">
+                    Puedes <strong>editar</strong> o <strong>eliminar</strong> ejercicios existentes usando los botones ✏️ y 🗑️ arriba.
+                </p>
+                <div style="display: flex; gap: 15px;">
+                    <a href="mis_rutinas.php" class="btn-secondary" style="flex: 1; text-align: center;">← Volver a Mis Rutinas</a>
+                    <a href="planes.php" class="btn-primary" style="flex: 1; text-align: center;">🚀 Actualizar a Premium</a>
+                </div>
             </div>
         <?php else: ?>
             <!-- Formulario para agregar ejercicio -->
@@ -482,6 +591,31 @@ $rutina_completa = ($siguiente_dia === null);
             
             // Scroll al campo de nombre
             inputNombre.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function editarEjercicio(id) {
+            window.location.href = 'editar_ejercicio.php?id=' + id + '&rutina_id=<?php echo $rutina_id; ?>';
+        }
+        
+        function eliminarEjercicio(id, nombre) {
+            if (confirm('¿Eliminar "' + nombre + '"?\n\nEsta acción no se puede deshacer.')) {
+                fetch('eliminar_ejercicio.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'id=' + id + '&rutina_id=<?php echo $rutina_id; ?>'
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) location.reload();
+                    else alert('Error: ' + data.message);
+                })
+                .catch(() => alert('Error al eliminar'));
+            }
+        }
+        
+        function toggleDiaDetalle(dia) {
+            const detalle = document.getElementById('detalle_' + dia);
+            if (detalle) detalle.style.display = detalle.style.display === 'none' ? 'block' : 'none';
         }
     </script>
 </body>

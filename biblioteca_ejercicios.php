@@ -12,7 +12,7 @@ $categorias = $conn->query("SELECT * FROM categorias_ejercicios ORDER BY nombre"
 
 // Obtener ejercicios de la biblioteca
 if ($categoria_filtro > 0) {
-    $stmt = $conn->prepare("SELECT b.*, c.nombre as categoria_nombre, c.icono, u.nombre_completo as creador 
+    $stmt = $conn->prepare("SELECT b.*, c.nombre as categoria_nombre, u.nombre_completo as creador 
                            FROM biblioteca_ejercicios b 
                            JOIN categorias_ejercicios c ON b.categoria_id = c.id 
                            JOIN usuarios u ON b.usuario_id = u.id
@@ -23,7 +23,7 @@ if ($categoria_filtro > 0) {
     $ejercicios = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 } else {
-    $ejercicios = $conn->query("SELECT b.*, c.nombre as categoria_nombre, c.icono, u.nombre_completo as creador 
+    $ejercicios = $conn->query("SELECT b.*, c.nombre as categoria_nombre, u.nombre_completo as creador 
                                FROM biblioteca_ejercicios b 
                                JOIN categorias_ejercicios c ON b.categoria_id = c.id 
                                JOIN usuarios u ON b.usuario_id = u.id
@@ -33,7 +33,17 @@ if ($categoria_filtro > 0) {
 
 $conn->close();
 
-$puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuario'] == 'premium');
+// Mensajes de sesión
+$mensaje_exito = isset($_SESSION['mensaje_exito']) ? $_SESSION['mensaje_exito'] : '';
+$mensaje_error = isset($_SESSION['mensaje_error']) ? $_SESSION['mensaje_error'] : '';
+unset($_SESSION['mensaje_exito']);
+unset($_SESSION['mensaje_error']);
+
+// Debug: Ver tipo de usuario
+// echo "DEBUG: tipo_usuario = " . $_SESSION['tipo_usuario'] . " | puede_agregar = " . ($puede_agregar ? 'true' : 'false');
+
+$tipo_lower = strtolower($_SESSION['tipo_usuario']);
+$puede_agregar = ($tipo_lower == 'admin' || $tipo_lower == 'premium' || $tipo_lower == 'premium_pro');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -42,6 +52,7 @@ $puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuari
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioteca de Ejercicios - Sistema de Entrenamiento</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="notifications.css">
 </head>
 <body>
     <div class="navbar">
@@ -64,17 +75,34 @@ $puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuari
                     </p>
                 </div>
                 
-                <?php if ($puede_agregar): ?>
-                    <a href="crear_ejercicio_biblioteca.php" class="btn-primary" style="white-space: nowrap;">
-                        ➕ Agregar a Biblioteca
-                    </a>
-                <?php else: ?>
-                    <button class="btn-disabled" onclick="mostrarMensajePremium()">
-                        🔒 Agregar a Biblioteca
-                    </button>
-                <?php endif; ?>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <?php if ($puede_agregar): ?>
+                        <a href="crear_ejercicio_biblioteca.php" class="btn-primary" style="white-space: nowrap;">
+                            ➕ Agregar Ejercicio
+                        </a>
+                        <a href="admin_categorias.php" class="btn-secondary" style="white-space: nowrap;">
+                            🏷️ Administrar Categorías
+                        </a>
+                    <?php else: ?>
+                        <button class="btn-disabled" onclick="mostrarMensajePremium()">
+                            🔒 Agregar a Biblioteca
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
+        
+        <?php if ($mensaje_exito): ?>
+            <div class="mensaje exito" style="margin-bottom: 20px;">
+                ✅ <?php echo $mensaje_exito; ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($mensaje_error): ?>
+            <div class="mensaje error" style="margin-bottom: 20px;">
+                ❌ <?php echo $mensaje_error; ?>
+            </div>
+        <?php endif; ?>
         
         <!-- Filtros por categoría -->
         <div class="card" style="margin-bottom: 20px;">
@@ -86,7 +114,7 @@ $puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuari
                 <?php foreach ($categorias as $cat): ?>
                     <a href="biblioteca_ejercicios.php?categoria=<?php echo $cat['id']; ?>" 
                        class="categoria-filtro-item <?php echo $categoria_filtro == $cat['id'] ? 'active' : ''; ?>">
-                        <?php echo $cat['icono']; ?> <?php echo htmlspecialchars($cat['nombre']); ?>
+                        <?php echo htmlspecialchars($cat['nombre']); ?>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -102,7 +130,7 @@ $puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuari
                             return $c['id'] == $categoria_filtro; 
                         });
                         $cat_actual = reset($cat_actual);
-                        echo $cat_actual['icono'] . ' ' . htmlspecialchars($cat_actual['nombre']); 
+                        echo htmlspecialchars($cat_actual['nombre']); 
                     ?>
                 <?php endif; ?>
                 <span class="badge-count"><?php echo count($ejercicios); ?></span>
@@ -120,9 +148,12 @@ $puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuari
                         <div class="ejercicio-biblioteca-card">
                             <div class="ejercicio-header">
                                 <div class="categoria-badge">
-                                    <?php echo $ejercicio['icono']; ?> <?php echo htmlspecialchars($ejercicio['categoria_nombre']); ?>
+                                    <?php echo htmlspecialchars($ejercicio['categoria_nombre']); ?>
                                 </div>
-                                <?php if ($ejercicio['usuario_id'] == $_SESSION['usuario_id'] || $_SESSION['tipo_usuario'] == 'admin'): ?>
+                                <?php 
+                                $tipo_lower = strtolower($_SESSION['tipo_usuario']);
+                                if ($ejercicio['usuario_id'] == $_SESSION['usuario_id'] || $tipo_lower == 'admin' || $tipo_lower == 'premium_pro'): 
+                                ?>
                                     <div class="ejercicio-acciones">
                                         <a href="editar_ejercicio_biblioteca.php?id=<?php echo $ejercicio['id']; ?>" class="btn-icon" title="Editar">
                                             ✏️
@@ -164,45 +195,57 @@ $puede_agregar = ($_SESSION['tipo_usuario'] == 'admin' || $_SESSION['tipo_usuari
         </div>
     </div>
     
-    <!-- Modal de mensaje Premium -->
-    <div id="modalPremium" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔒 Función Premium</h3>
-                <button class="modal-close" onclick="cerrarModalPremium()">&times;</button>
-            </div>
-            <div style="text-align: center; padding: 20px 0;">
-                <p style="font-size: 48px; margin-bottom: 15px;">⭐</p>
-                <p style="margin-bottom: 20px;">
-                    Actualiza a <strong>Premium</strong> para agregar tus propios ejercicios a la biblioteca y acceder a funciones ilimitadas.
-                </p>
-                <p style="color: #666;">
-                    Contacta al administrador para actualizar tu cuenta.
-                </p>
-            </div>
-            <button onclick="cerrarModalPremium()" style="background: #667eea;">Entendido</button>
-        </div>
-    </div>
-    
     <script>
         function mostrarMensajePremium() {
-            document.getElementById('modalPremium').style.display = 'flex';
-        }
-        
-        function cerrarModalPremium() {
-            document.getElementById('modalPremium').style.display = 'none';
+            showModal(
+                '🔒 Función Premium',
+                'Actualiza a Premium para agregar tus propios ejercicios a la biblioteca y acceder a funciones ilimitadas.',
+                () => {
+                    // Usuario acepta, podrías redirigir a planes.php
+                },
+                false
+            );
         }
         
         function confirmarEliminar(id) {
-            if (confirm('¿Estás seguro de eliminar este ejercicio de la biblioteca?')) {
-                window.location.href = 'eliminar_ejercicio_biblioteca.php?id=' + id;
-            }
+            showModal(
+                '¿Eliminar ejercicio?',
+                'Esta acción no se puede deshacer.',
+                () => {
+                    window.location.href = 'eliminar_ejercicio_biblioteca.php?id=' + id;
+                },
+                true
+            );
         }
+
+    </script>
+    
+    <!-- Modal de confirmación -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">Confirmar acción</div>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn" onclick="confirmAction()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script src="notifications.js"></script>
+    
+    <script>
+        // Mostrar toasts automáticamente si hay mensajes
+        <?php if ($mensaje_exito): ?>
+            showToast('<?php echo addslashes($mensaje_exito); ?>', 'success');
+        <?php endif; ?>
         
-        // Cerrar modal con ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cerrarModalPremium();
-        });
+        <?php if ($mensaje_error): ?>
+            showToast('<?php echo addslashes($mensaje_error); ?>', 'error');
+        <?php endif; ?>
     </script>
 </body>
 </html>
