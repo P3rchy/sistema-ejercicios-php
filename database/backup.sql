@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-12-2025 a las 23:38:56
+-- Tiempo de generación: 29-12-2025 a las 05:46:51
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -54,7 +54,7 @@ INSERT INTO `biblioteca_ejercicios` (`id`, `usuario_id`, `categoria_id`, `nombre
 (7, 1, 2, 'Dominadas', 'Ejercicio compuesto para espalda', NULL, NULL, 1, 0, '2025-12-28 03:53:58'),
 (8, 1, 2, 'Remo con Barra', 'Ejercicio de espalda', NULL, NULL, 1, 0, '2025-12-28 03:53:58'),
 (9, 1, 3, 'Press militar', 'mover con tranquilidad y todo controlado', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 0, 0, '2025-12-28 04:56:49'),
-(10, 1, 11, 'crunch', 'controlado', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 1, 0, '2025-12-28 04:57:57');
+(10, 1, 11, 'crunch abdominal', 'controlado', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 1, 0, '2025-12-28 04:57:57');
 
 -- --------------------------------------------------------
 
@@ -98,8 +98,8 @@ INSERT INTO `categorias_ejercicios` (`id`, `nombre`, `icono`) VALUES
 (8, 'Femorales', '🦵'),
 (9, 'Glúteos', '🍑'),
 (10, 'Pantorrillas', '🦵'),
-(11, 'Abdominales', '🔥'),
-(12, 'Core', '🔥');
+(11, 'Abdominales', '????'),
+(13, 'Antebrazos', NULL);
 
 -- --------------------------------------------------------
 
@@ -142,10 +142,6 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (2, 1, 'Martes', 3, NULL),
 (3, 1, 'Jueves', 3, NULL),
 (4, 1, 'Viernes', 3, NULL),
-(5, 2, 'Lunes', 3, NULL),
-(6, 2, 'Martes', 3, NULL),
-(7, 2, 'Miércoles', 3, NULL),
-(8, 2, 'Jueves', 3, NULL),
 (9, 3, 'Lunes', 3, NULL),
 (10, 3, 'Martes', 3, NULL),
 (11, 3, 'Jueves', 3, NULL),
@@ -154,9 +150,6 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (14, 4, 'Martes', 3, 'cuadriceps-femorales-piernas'),
 (15, 4, 'Miércoles', 3, 'abodminales y piernas'),
 (16, 4, 'Jueves', 3, 'pecho, piernas'),
-(17, 5, 'Lunes', 3, 'pecho espalda biceps'),
-(18, 5, 'Martes', 3, 'cuadriceps-femorales-piernas'),
-(19, 5, 'Viernes', 3, 'abdomnales y piernas'),
 (24, 7, 'Lunes', 3, 'pecho espalda biceps'),
 (25, 7, 'Martes', 3, 'cuadriceps-femorales-piernas'),
 (26, 7, 'Miércoles', 3, 'abodminales y piernas'),
@@ -183,7 +176,12 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (47, 12, 'Sábado', 3, 'daf'),
 (48, 13, 'Lunes', 3, 'cuadriceps gluteos'),
 (49, 13, 'Miércoles', 3, 'femorales y gluteos'),
-(50, 13, 'Viernes', 3, 'solo gluteos');
+(50, 13, 'Viernes', 3, 'solo gluteos'),
+(54, 7, 'Viernes', 3, 'abdomnales y piernas'),
+(55, 7, 'Sábado', 3, 'pecho'),
+(56, 15, 'Lunes', 3, 'cuadriceps gluteos'),
+(57, 15, 'Miércoles', 3, 'femorales y gluteos'),
+(58, 15, 'Viernes', 3, 'solo gluteos');
 
 -- --------------------------------------------------------
 
@@ -216,9 +214,6 @@ INSERT INTO `ejercicios` (`id`, `dia_rutina_id`, `usuario_id`, `orden`, `nombre_
 (1, 9, 2, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set back of', 4, 4, 2, 0, '2-3', '2025-12-28 03:00:10'),
 (2, 13, 2, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 30, '2-3', '2025-12-28 03:13:03'),
 (3, 13, 2, 2, 'sentadilla', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 03:13:54'),
-(4, 17, 2, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 4, 4, 2, 0, '2-3', '2025-12-28 03:21:07'),
-(5, 19, 2, 1, 'sentadilla', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 4, 4, 2, 0, '2-3', '2025-12-28 03:33:12'),
-(6, 19, 2, 2, 'crunch', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 03:34:49'),
 (9, 24, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:22'),
 (10, 25, 1, 1, 'Beanch press', 'https://s3assets.skimble.com/assets/2289478/image_full.jpg', 'https://www.youtube.com/watch?v=SCVCLChPQFY', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 05:12:44'),
 (11, 36, 2, 1, 'peck fly', '', '', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:33:52'),
@@ -230,10 +225,11 @@ INSERT INTO `ejercicios` (`id`, `dia_rutina_id`, `usuario_id`, `orden`, `nombre_
 (17, 38, 2, 1, 'sentadillas con mancuerna', 'https://static.strengthlevel.com/images/exercises/dumbbell-squat/dumbbell-squat-800.jpg', 'https://www.youtube.com/watch?v=MtCgXp8mGYU', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:43:02'),
 (18, 38, 2, 2, 'leg extension', 'https://static.strengthlevel.com/images/exercises/leg-extension/leg-extension-800.jpg', 'https://www.youtube.com/watch?v=m0FOpMEgero', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:43:48'),
 (19, 38, 2, 3, 'leg curl tumbado', 'https://i.ytimg.com/vi/sRMO3SbTqjk/maxresdefault.jpg', 'https://www.youtube.com/watch?v=VEAv16_YIF0', 'Top Set', 3, 4, 2, 0, '2-3', '2025-12-28 20:44:33'),
-(20, 39, 2, 1, 'Crunchs abdominal', 'https://hips.hearstapps.com/hmg-prod/images/crunch-1588842220.jpg', 'https://www.youtube.com/watch?v=OsUz898onTE', 'Top Set', 3, 4, 2, 0, '0', '2025-12-28 20:45:37'),
+(20, 39, 2, 1, 'Crunchs abdominal 2', 'https://hips.hearstapps.com/hmg-prod/images/crunch-1588842220.jpg', 'https://www.youtube.com/watch?v=OsUz898onTE', 'fuerza', 3, 4, 2, 0, '0', '2025-12-28 20:45:37'),
 (21, 39, 2, 2, 'ab coaster', 'https://m.media-amazon.com/images/I/51RslMwLFBL.jpg', 'https://www.youtube.com/watch?v=ah9Cd0encTQ', 'Top Set', 3, 4, 2, 0, '1', '2025-12-28 20:46:44'),
 (22, 39, 2, 3, 'plank', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXyu5xM7v0ybi15gAnPUDvNk2adyEwyZ4Tqg&s', 'https://www.youtube.com/watch?v=pvIjsG5Svck', 'Top Set', 3, 4, 2, 0, '0', '2025-12-28 20:47:25'),
-(23, 48, 2, 1, 'sentadillas con barra', 'https://i0.wp.com/menshealthlatam.com/wp-content/uploads/2023/08/manera-correcta-de-hacer-una-sentadilla-con-barra-en-la-espalda.jpg', 'https://www.youtube.com/shorts/4xVs7iOSd2Qhttps://www.youtube.com/shorts/4xVs7iOSd2Q', 'al fallo', 4, 4, 2, 0, '0', '2025-12-28 22:29:58');
+(23, 48, 2, 1, 'sentadillas con barra', 'https://i0.wp.com/menshealthlatam.com/wp-content/uploads/2023/08/manera-correcta-de-hacer-una-sentadilla-con-barra-en-la-espalda.jpg', 'https://www.youtube.com/shorts/4xVs7iOSd2Qhttps://www.youtube.com/shorts/4xVs7iOSd2Q', 'al fallo', 4, 4, 2, 0, '0', '2025-12-28 22:29:58'),
+(26, 56, 2, 1, 'sentadillas con barra', 'https://i0.wp.com/menshealthlatam.com/wp-content/uploads/2023/08/manera-correcta-de-hacer-una-sentadilla-con-barra-en-la-espalda.jpg', 'https://www.youtube.com/shorts/4xVs7iOSd2Qhttps://www.youtube.com/shorts/4xVs7iOSd2Q', 'al fallo', 4, 4, 2, 0, '0', '2025-12-29 03:07:38');
 
 -- --------------------------------------------------------
 
@@ -376,7 +372,7 @@ CREATE TABLE `notas_sesion` (
 --
 
 INSERT INTO `notas_sesion` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `nota`, `fecha_creacion`) VALUES
-(1, 11, 2, 1, 'hola dolor en hombro', '2025-12-28 21:23:29');
+(1, 11, 2, 1, 'hola dolor en hombro\r\n\r\ndorlr', '2025-12-28 21:23:29');
 
 -- --------------------------------------------------------
 
@@ -481,17 +477,16 @@ CREATE TABLE `rutinas` (
 
 INSERT INTO `rutinas` (`id`, `usuario_id`, `nombre_rutina`, `descripcion`, `descripcion_split`, `video_explicativo`, `calificacion_promedio`, `total_votos`, `num_dias_semana`, `tipo_rutina`, `genero`, `nivel_experiencia`, `es_publico`, `fecha_creacion`) VALUES
 (1, 1, 'mix pump', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:39:20'),
-(2, 2, 'power gym', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:48:59'),
 (3, 2, 'mix pump2', 'rutina de fuerza', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 02:57:55'),
 (4, 2, 'ful body 4 días', 'rutina todo el cuerpo', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 03:11:11'),
-(5, 2, 'mix pump', 'rutina fuerza', NULL, NULL, 0.0, 0, 3, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 03:20:43'),
-(7, 1, 'mix pump', 'ljljk', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 05:12:03'),
+(7, 1, 'mix pump previo', 'ljljk', '', '', 0.0, 0, 6, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 05:12:03'),
 (8, 2, 'mix pump', 'rutina alterna', NULL, NULL, 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 18:58:00'),
 (9, 2, 'mix pump', 'adsfa', 'torso y piernas', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:12:03'),
-(10, 2, 'powerfit', 'adf', 'asdf', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:33:18'),
+(10, 2, 'powerfit 2', 'adf', 'asdf', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 20:33:18'),
 (11, 2, 'Push pull leg', 'adsf', 'asdf', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 22:05:59'),
 (12, 2, 'adf', 'adf', '', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 22:12:40'),
-(13, 2, 'booty power', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', '', 0.0, 0, 3, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-28 22:26:00');
+(13, 2, 'booty power', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', '', 0.0, 0, 3, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-28 22:26:00'),
+(15, 2, 'booty power - Duplicado', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', NULL, 0.0, 0, 0, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-29 03:07:38');
 
 -- --------------------------------------------------------
 
@@ -538,6 +533,7 @@ CREATE TABLE `sesiones_ejercicio` (
   `peso` decimal(6,2) DEFAULT NULL,
   `unidad_peso` enum('kg','lb') DEFAULT 'kg',
   `repeticiones` int(11) DEFAULT NULL,
+  `evaluacion` enum('bien','mal','regular') DEFAULT NULL COMMENT 'Evaluación de la serie (✓/✗/~)',
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
   `fecha_realizado` date DEFAULT NULL COMMENT 'Fecha en que se realizó el entrenamiento'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -546,14 +542,16 @@ CREATE TABLE `sesiones_ejercicio` (
 -- Volcado de datos para la tabla `sesiones_ejercicio`
 --
 
-INSERT INTO `sesiones_ejercicio` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `num_serie`, `peso`, `unidad_peso`, `repeticiones`, `fecha_registro`, `fecha_realizado`) VALUES
-(1, 11, 2, 1, 1, 105.00, 'kg', 12, '2025-12-28 21:23:07', '2025-12-28'),
-(2, 11, 2, 1, 2, 100.00, 'kg', 10, '2025-12-28 21:23:38', '2025-12-28'),
-(3, 11, 2, 1, 3, 90.00, 'kg', 12, '2025-12-28 21:23:42', '2025-12-28'),
-(4, 12, 2, 1, 1, 100.00, 'kg', 15, '2025-12-28 22:17:59', '2025-12-28'),
-(5, 23, 2, 1, 1, 100.00, 'kg', 0, '2025-12-28 22:31:46', '2025-12-28'),
-(6, 23, 2, 2, 2, 200.00, 'kg', 0, '2025-12-28 22:31:51', '2025-12-28'),
-(7, 23, 2, 2, 1, 0.00, 'kg', 0, '2025-12-28 22:31:56', '2025-12-28');
+INSERT INTO `sesiones_ejercicio` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `num_serie`, `peso`, `unidad_peso`, `repeticiones`, `evaluacion`, `fecha_registro`, `fecha_realizado`) VALUES
+(1, 11, 2, 1, 1, 100.00, 'kg', 12, 'bien', '2025-12-28 21:23:07', '2025-12-28'),
+(2, 11, 2, 1, 2, 50.00, 'kg', 10, 'mal', '2025-12-28 21:23:38', '2025-12-28'),
+(3, 11, 2, 1, 3, 30.00, 'kg', 12, 'regular', '2025-12-28 21:23:42', '2025-12-28'),
+(4, 12, 2, 1, 1, 100.00, 'kg', 15, NULL, '2025-12-28 22:17:59', '2025-12-28'),
+(5, 23, 2, 1, 1, 100.00, 'kg', 0, NULL, '2025-12-28 22:31:46', '2025-12-28'),
+(6, 23, 2, 2, 2, 200.00, 'kg', 0, NULL, '2025-12-28 22:31:51', '2025-12-28'),
+(7, 23, 2, 2, 1, 0.00, 'kg', 0, NULL, '2025-12-28 22:31:56', '2025-12-28'),
+(8, 13, 2, 1, 2, 123.00, 'kg', 0, NULL, '2025-12-28 23:46:06', '2025-12-28'),
+(9, 12, 2, 1, 2, 50.00, 'kg', 0, NULL, '2025-12-29 00:06:47', '2025-12-28');
 
 -- --------------------------------------------------------
 
@@ -768,7 +766,7 @@ ALTER TABLE `calificaciones_rutinas`
 -- AUTO_INCREMENT de la tabla `categorias_ejercicios`
 --
 ALTER TABLE `categorias_ejercicios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `contenido_aprendizaje`
@@ -780,13 +778,13 @@ ALTER TABLE `contenido_aprendizaje`
 -- AUTO_INCREMENT de la tabla `dias_rutina`
 --
 ALTER TABLE `dias_rutina`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT de la tabla `ejercicios`
 --
 ALTER TABLE `ejercicios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `ejercicios_basicos`
@@ -852,7 +850,7 @@ ALTER TABLE `planes_pro`
 -- AUTO_INCREMENT de la tabla `rutinas`
 --
 ALTER TABLE `rutinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `rutinas_asignadas`
@@ -870,7 +868,7 @@ ALTER TABLE `sesiones_activas`
 -- AUTO_INCREMENT de la tabla `sesiones_ejercicio`
 --
 ALTER TABLE `sesiones_ejercicio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
