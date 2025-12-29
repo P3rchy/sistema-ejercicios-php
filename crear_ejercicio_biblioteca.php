@@ -100,7 +100,7 @@ $conn->close();
                             <option value="0">Selecciona una categoría</option>
                             <?php foreach ($categorias as $cat): ?>
                                 <option value="<?php echo $cat['id']; ?>">
-                                    <?php echo $cat['icono'] . ' ' . htmlspecialchars($cat['nombre']); ?>
+                                    <?php echo htmlspecialchars($cat['nombre']); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
