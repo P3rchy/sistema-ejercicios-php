@@ -6,24 +6,43 @@ $conn = getConnection();
 
 // Obtener rutinas del usuario
 $usuario_id = $_SESSION['usuario_id'];
+
+// Verificar si existe la tabla ejercicios_rutina
+$tabla_ejercicios_rutina = $conn->query("SHOW TABLES LIKE 'ejercicios_rutina'")->num_rows > 0;
+$tabla_ejercicios = $conn->query("SHOW TABLES LIKE 'ejercicios'")->num_rows > 0;
+
+// Query universal que funciona con ambos tipos de rutinas
 $stmt = $conn->prepare("SELECT r.*, 
                         COUNT(DISTINCT dr.id) as total_dias,
-                        COUNT(DISTINCT e.id) as total_ejercicios
+                        COALESCE(
+                            (SELECT COUNT(*) FROM ejercicios_rutina er WHERE er.dia_id IN (
+                                SELECT id FROM dias_rutina WHERE rutina_id = r.id
+                            )),
+                            0
+                        ) + COALESCE(
+                            (SELECT COUNT(*) FROM ejercicios e WHERE e.dia_rutina_id IN (
+                                SELECT id FROM dias_rutina WHERE rutina_id = r.id
+                            )),
+                            0
+                        ) as total_ejercicios
                         FROM rutinas r
                         LEFT JOIN dias_rutina dr ON r.id = dr.rutina_id
-                        LEFT JOIN ejercicios e ON dr.id = e.dia_rutina_id
                         WHERE r.usuario_id = ?
                         GROUP BY r.id
                         ORDER BY r.fecha_creacion DESC");
+
 $stmt->bind_param("i", $usuario_id);
 $stmt->execute();
 $rutinas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-$conn->close();
+// NO cerrar $conn aquí porque se usa más adelante
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- PWA -->
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/sistema_entrenamiento/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Rutinas - Sistema de Entrenamiento</title>
@@ -109,7 +128,7 @@ $conn->close();
         
         .stat-number {
             font-weight: bold;
-            color: #667eea;
+            color: #2563eb;
         }
         
         .rutina-meta {
@@ -159,12 +178,12 @@ $conn->close();
         }
         
         .btn-ver {
-            background: #667eea;
+            background: #2563eb;
             color: white;
         }
         
         .btn-ver:hover {
-            background: #5568d3;
+            background: #1e40af;
         }
         
         .btn-editar {
@@ -279,6 +298,54 @@ $conn->close();
             border-radius: 5px;
             font-size: 14px;
             cursor: pointer;
+        }
+        
+        /* Botones de filtro por tipo */
+        .btn-filtro-tipo {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-filtro-tipo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-filtro-tipo.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .badge-count {
+            background: rgba(0,0,0,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .btn-filtro-tipo.active .badge-count {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .input-buscador:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .contador-resultados {
+            padding: 8px 0;
+            font-size: 14px;
         }
         
         /* Modal de confirmación custom */
@@ -455,7 +522,7 @@ $conn->close();
                     <a href="crear_rutina.php" class="btn-primary">
                         ➕ Nueva Rutina Metodológica
                     </a>
-                    <a href="crear_rutina_basica.php" class="btn-primary" style="background: #7b1fa2;">
+                    <a href="crear_rutina_basica.php" class="btn-primary" style="background: #1e40af;">
                         ➕ Nueva Rutina Básica
                     </a>
                 </div>
@@ -464,17 +531,37 @@ $conn->close();
         
         <!-- Filtros -->
         <div class="filtros-rutinas">
+            <!-- Buscador -->
+            <div class="buscador-container" style="margin-bottom: 20px;">
+                <input type="text" 
+                       id="buscadorRutinas" 
+                       class="input-buscador"
+                       placeholder="🔍 Buscar rutinas por nombre..." 
+                       onkeyup="filtrarRutinas()"
+                       style="width: 100%; max-width: 500px; padding: 12px 20px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 25px; outline: none;">
+            </div>
+            
+            <!-- Botones de filtro por tipo -->
+            <div class="filtro-tipo-botones" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                <button class="btn-filtro-tipo active" data-tipo="todas" onclick="cambiarFiltroTipo('todas')">
+                    🎯 Todas <span class="badge-count" id="count-todas">0</span>
+                </button>
+                <button class="btn-filtro-tipo" data-tipo="metodologica" onclick="cambiarFiltroTipo('metodologica')">
+                    📊 Metodológicas <span class="badge-count" id="count-metodologica">0</span>
+                </button>
+                <button class="btn-filtro-tipo" data-tipo="basica_gym" onclick="cambiarFiltroTipo('basica_gym')">
+                    💪 Básicas <span class="badge-count" id="count-basica">0</span>
+                </button>
+            </div>
+            
+            <!-- Contador de resultados -->
+            <div class="contador-resultados" style="margin-bottom: 15px; font-weight: 600; color: #666;">
+                <span id="contadorRutinas">0</span> rutinas mostradas
+            </div>
+            
+            <!-- Filtros adicionales -->
             <div class="filtros-grupo">
-                <span style="font-weight: bold; color: #333;">🔍 Filtrar:</span>
-                
-                <div class="filtro-item">
-                    <label>Tipo:</label>
-                    <select id="filtroTipo" onchange="filtrarRutinas()">
-                        <option value="todas">Todas</option>
-                        <option value="metodologica">Metodológicas</option>
-                        <option value="basica">Básicas</option>
-                    </select>
-                </div>
+                <span style="font-weight: bold; color: #333;">🔍 Filtros adicionales:</span>
                 
                 <div class="filtro-item">
                     <label>Nivel:</label>
@@ -490,8 +577,8 @@ $conn->close();
                     <label>Género:</label>
                     <select id="filtroGenero" onchange="filtrarRutinas()">
                         <option value="todas">Todos</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
+                        <option value="hombre">Hombre</option>
+                        <option value="mujer">Mujer</option>
                         <option value="unisex">Unisex</option>
                     </select>
                 </div>
@@ -508,7 +595,7 @@ $conn->close();
                     <a href="crear_rutina.php" class="btn-primary">
                         ➕ Crear Rutina Metodológica
                     </a>
-                    <a href="crear_rutina_basica.php" class="btn-primary" style="background: #7b1fa2;">
+                    <a href="crear_rutina_basica.php" class="btn-primary" style="background: #1e40af;">
                         ➕ Crear Rutina Básica
                     </a>
                 </div>
@@ -519,8 +606,8 @@ $conn->close();
                 <?php foreach ($rutinas as $rutina): ?>
                     <div class="rutina-card" 
                          data-tipo="<?php echo htmlspecialchars($rutina['tipo_rutina'] ?? 'metodologica'); ?>"
-                         data-nivel="<?php echo htmlspecialchars($rutina['nivel_experiencia'] ?? 'principiante'); ?>"
-                         data-genero="<?php echo htmlspecialchars($rutina['genero'] ?? 'unisex'); ?>">
+                         data-nivel="<?php echo htmlspecialchars($rutina['nivel_experiencia'] ?? 'Principiante'); ?>"
+                         data-genero="<?php echo htmlspecialchars($rutina['genero'] ?? 'Unisex'); ?>">
                         
                         <?php if ($rutina['es_publico']): ?>
                             <div class="rutina-publica">🌐 PÚBLICA</div>
@@ -561,6 +648,19 @@ $conn->close();
                         </div>
                         
                         <div class="rutina-meta">
+                            <?php 
+                            // Badge de tipo de rutina
+                            $tipo_rutina = $rutina['tipo_rutina'] ?? 'metodologica';
+                            if ($tipo_rutina == 'basica_gym'): ?>
+                                <span class="meta-badge" style="background: #10b981; color: white;">
+                                    💪 Básica
+                                </span>
+                            <?php else: ?>
+                                <span class="meta-badge" style="background: #2563eb; color: white;">
+                                    📊 Metodológica
+                                </span>
+                            <?php endif; ?>
+                            
                             <?php if (isset($rutina['nivel_experiencia'])): ?>
                                 <span class="meta-badge">
                                     🎯 <?php echo ucfirst($rutina['nivel_experiencia']); ?>
@@ -570,10 +670,11 @@ $conn->close();
                             <?php if (isset($rutina['genero'])): ?>
                                 <span class="meta-badge">
                                     <?php 
-                                    $iconos = ['masculino' => '♂️', 'femenino' => '♀️', 'unisex' => '⚧'];
-                                    echo $iconos[$rutina['genero']] ?? '⚧';
+                                    $genero_lower = strtolower($rutina['genero']);
+                                    $iconos = ['hombre' => '♂️', 'mujer' => '♀️', 'unisex' => '⚧'];
+                                    echo $iconos[$genero_lower] ?? '⚧';
                                     ?>
-                                    <?php echo ucfirst($rutina['genero']); ?>
+                                    <?php echo htmlspecialchars($rutina['genero']); ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -599,11 +700,28 @@ $conn->close();
                         <div class="rutina-acciones">
                             <?php 
                             $tipo_rutina = $rutina['tipo_rutina'] ?? 'metodologica';
-                            $ver_url = $tipo_rutina == 'basica' ? 'ver_rutina_basica.php' : 'ver_rutina.php';
-                            $editar_url = $tipo_rutina == 'basica' ? 'editar_rutina_basica.php' : 'editar_rutina.php';
+                            
+                            // Para rutinas básicas, "Ver" realmente es "Entrenar" 
+                            if ($tipo_rutina == 'basica_gym') {
+                                // Obtener el primer día de la rutina básica
+                                $stmt_dia = $conn->prepare("SELECT dia_semana FROM dias_rutina WHERE rutina_id = ? ORDER BY id LIMIT 1");
+                                $stmt_dia->bind_param("i", $rutina['id']);
+                                $stmt_dia->execute();
+                                $primer_dia = $stmt_dia->get_result()->fetch_assoc();
+                                $stmt_dia->close();
+                                
+                                $dia_entrenar = $primer_dia ? $primer_dia['dia_semana'] : 'Lunes';
+                                $ver_url = "entrenar_rutina_basica.php?id={$rutina['id']}&dia={$dia_entrenar}&ejercicio=0";
+                                $ver_texto = "💪 Entrenar";
+                            } else {
+                                $ver_url = "ver_rutina.php?id={$rutina['id']}";
+                                $ver_texto = "👁️ Ver";
+                            }
+                            
+                            $editar_url = $tipo_rutina == 'basica_gym' ? 'editar_rutina_basica.php' : 'editar_rutina.php';
                             ?>
-                            <a href="<?php echo $ver_url; ?>?id=<?php echo $rutina['id']; ?>" class="btn-accion btn-ver">
-                                👁️ Ver
+                            <a href="<?php echo $ver_url; ?>" class="btn-accion btn-ver">
+                                <?php echo $ver_texto; ?>
                             </a>
                             <a href="<?php echo $editar_url; ?>?id=<?php echo $rutina['id']; ?>" class="btn-accion btn-editar">
                                 ✏️ Editar
@@ -679,29 +797,84 @@ $conn->close();
             }, 3000);
         }
         
+        let tipoFiltroActual = 'todas';
+        
+        // Función para cambiar filtro de tipo (con botones)
+        function cambiarFiltroTipo(tipo) {
+            tipoFiltroActual = tipo;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.btn-filtro-tipo').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.btn-filtro-tipo[data-tipo="${tipo}"]`).classList.add('active');
+            
+            // Aplicar filtros
+            filtrarRutinas();
+        }
+        
+        // Función principal de filtrado
         function filtrarRutinas() {
-            const tipo = document.getElementById('filtroTipo').value;
+            const buscador = document.getElementById('buscadorRutinas').value.toLowerCase();
             const nivel = document.getElementById('filtroNivel').value;
             const genero = document.getElementById('filtroGenero').value;
             
             const cards = document.querySelectorAll('.rutina-card');
+            let contador = 0;
             
             cards.forEach(card => {
                 const cardTipo = card.getAttribute('data-tipo');
-                const cardNivel = card.getAttribute('data-nivel');
-                const cardGenero = card.getAttribute('data-genero');
+                const cardNivel = card.getAttribute('data-nivel')?.toLowerCase() || '';
+                const cardGenero = card.getAttribute('data-genero')?.toLowerCase() || '';
+                const cardNombre = card.querySelector('.rutina-title')?.textContent.toLowerCase() || '';
                 
-                const matchTipo = tipo === 'todas' || cardTipo === tipo;
-                const matchNivel = nivel === 'todas' || cardNivel === nivel;
-                const matchGenero = genero === 'todas' || cardGenero === genero;
+                // Filtros
+                const matchTipo = tipoFiltroActual === 'todas' || cardTipo === tipoFiltroActual;
+                const matchNivel = nivel === 'todas' || cardNivel === nivel.toLowerCase();
+                const matchGenero = genero === 'todas' || cardGenero === genero.toLowerCase();
+                const matchBuscador = buscador === '' || cardNombre.includes(buscador);
                 
-                if (matchTipo && matchNivel && matchGenero) {
+                if (matchTipo && matchNivel && matchGenero && matchBuscador) {
                     card.style.display = 'block';
+                    contador++;
                 } else {
                     card.style.display = 'none';
                 }
             });
+            
+            // Actualizar contador
+            document.getElementById('contadorRutinas').textContent = contador;
         }
+        
+        // Función para actualizar contadores en badges
+        function actualizarContadores() {
+            const cards = document.querySelectorAll('.rutina-card');
+            let totalTodas = 0;
+            let totalMetodologica = 0;
+            let totalBasica = 0;
+            
+            cards.forEach(card => {
+                const tipo = card.getAttribute('data-tipo');
+                totalTodas++;
+                
+                if (tipo === 'metodologica') {
+                    totalMetodologica++;
+                } else if (tipo === 'basica_gym' || tipo === 'basica') {
+                    totalBasica++;
+                }
+            });
+            
+            document.getElementById('count-todas').textContent = totalTodas;
+            document.getElementById('count-metodologica').textContent = totalMetodologica;
+            document.getElementById('count-basica').textContent = totalBasica;
+            document.getElementById('contadorRutinas').textContent = totalTodas;
+        }
+        
+        // Ejecutar al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            actualizarContadores();
+            filtrarRutinas();
+        });
         
         function duplicarRutina(id, nombre) {
             showModal(
@@ -738,5 +911,12 @@ $conn->close();
             );
         }
     </script>
+    <script src="/sistema_entrenamiento/pwa-register.js"></script>
 </body>
 </html>
+<?php
+// Cerrar conexión al final
+if (isset($conn)) {
+    $conn->close();
+}
+?>
