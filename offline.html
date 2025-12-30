@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin Conexión - Sistema de Entrenamiento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .btn-retry {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn-retry:hover {
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .status.checking {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        <h1>Sin Conexión a Internet</h1>
+        <p>
+            No puedes acceder a esta página en este momento. 
+            Verifica tu conexión a internet e inténtalo de nuevo.
+        </p>
+        <button class="btn-retry" onclick="reintentar()">
+            🔄 Reintentar
+        </button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Verificar conexión automáticamente cada 5 segundos
+        let checkInterval;
+        
+        function mostrarEstado(mensaje, tipo) {
+            const status = document.getElementById('status');
+            status.textContent = mensaje;
+            status.className = `status ${tipo}`;
+        }
+        
+        function verificarConexion() {
+            mostrarEstado('🔍 Verificando conexión...', 'checking');
+            
+            fetch('/sistema_entrenamiento/', { 
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
+            .then(response => {
+                if (response.ok) {
+                    mostrarEstado('✅ Conexión restaurada', 'online');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                    clearInterval(checkInterval);
+                } else {
+                    mostrarEstado('❌ Aún sin conexión', 'offline');
+                }
+            })
+            .catch(() => {
+                mostrarEstado('❌ Sin conexión a internet', 'offline');
+            });
+        }
+        
+        function reintentar() {
+            verificarConexion();
+        }
+        
+        // Verificar cada 5 segundos
+        checkInterval = setInterval(verificarConexion, 5000);
+        
+        // Verificar al cargar
+        verificarConexion();
+        
+        // Escuchar evento de conexión
+        window.addEventListener('online', () => {
+            mostrarEstado('✅ Conexión restaurada', 'online');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+        
+        window.addEventListener('offline', () => {
+            mostrarEstado('❌ Conexión perdida', 'offline');
+        });
+    </script>
+</body>
+</html>
