@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-12-2025 a las 05:46:51
+-- Tiempo de generación: 30-12-2025 a las 04:10:41
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -181,7 +181,16 @@ INSERT INTO `dias_rutina` (`id`, `rutina_id`, `dia_semana`, `num_ejercicios`, `g
 (55, 7, 'Sábado', 3, 'pecho'),
 (56, 15, 'Lunes', 3, 'cuadriceps gluteos'),
 (57, 15, 'Miércoles', 3, 'femorales y gluteos'),
-(58, 15, 'Viernes', 3, 'solo gluteos');
+(58, 15, 'Viernes', 3, 'solo gluteos'),
+(59, 16, 'Lunes', 3, 'pecho espalda biceps'),
+(60, 16, 'Miércoles', 3, 'abodminales y piernas'),
+(61, 16, 'Jueves', 3, 'pecho, piernas'),
+(62, 16, 'Sábado', 3, 'daf'),
+(63, 17, 'Lunes', 3, 'adsf'),
+(64, 17, 'Sábado', 3, 'asdf'),
+(71, 20, 'Lunes', 3, NULL),
+(72, 20, 'Miércoles', 3, NULL),
+(73, 20, 'Sábado', 3, NULL);
 
 -- --------------------------------------------------------
 
@@ -249,6 +258,35 @@ CREATE TABLE `ejercicios_basicos` (
   `series_reps` varchar(50) DEFAULT NULL COMMENT 'Ej: 4 series, 15-20 reps',
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ejercicios_rutina`
+--
+
+CREATE TABLE `ejercicios_rutina` (
+  `id` int(11) NOT NULL,
+  `dia_id` int(11) NOT NULL,
+  `nombre_ejercicio` varchar(255) NOT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
+  `series` int(11) NOT NULL DEFAULT 3,
+  `repeticiones` varchar(50) NOT NULL,
+  `descanso` int(11) DEFAULT 60,
+  `orden` int(11) DEFAULT 0,
+  `imagen_url` text DEFAULT NULL,
+  `video_url` text DEFAULT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `ejercicios_rutina`
+--
+
+INSERT INTO `ejercicios_rutina` (`id`, `dia_id`, `nombre_ejercicio`, `categoria`, `series`, `repeticiones`, `descanso`, `orden`, `imagen_url`, `video_url`, `fecha_creacion`) VALUES
+(2, 71, 'sentadillas dinamicas', 'Piernas', 4, '8', 60, 1, 'https://media.glamour.es/photos/616f71bb38abdad04f453327/master/w_1600%2Cc_limit/650689.jpg', 'https://www.youtube.com/watch?v=uYumuL_G_V0', '2025-12-29 20:26:34'),
+(3, 71, 'sancadas', 'Glúteos', 4, '8', 60, 2, 'https://mundoentrenamiento.com/wp-content/uploads/2021/11/lunge-330x300.jpg', 'https://www.youtube.com/watch?v=Xcfs_3DMKlc', '2025-12-29 20:26:34'),
+(4, 72, 'press de banca', 'Cuádriceps', 4, '0', 60, 3, 'asdf', 'asdf', '2025-12-29 20:26:34');
 
 -- --------------------------------------------------------
 
@@ -372,7 +410,8 @@ CREATE TABLE `notas_sesion` (
 --
 
 INSERT INTO `notas_sesion` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `nota`, `fecha_creacion`) VALUES
-(1, 11, 2, 1, 'hola dolor en hombro\r\n\r\ndorlr', '2025-12-28 21:23:29');
+(1, 11, 2, 1, 'hola dolor en hombro\r\n\r\ndorlr', '2025-12-28 21:23:29'),
+(2, 12, 2, 1, 'me dolio el hombro', '2025-12-29 18:32:14');
 
 -- --------------------------------------------------------
 
@@ -464,7 +503,7 @@ CREATE TABLE `rutinas` (
   `calificacion_promedio` decimal(2,1) DEFAULT 0.0,
   `total_votos` int(11) DEFAULT 0,
   `num_dias_semana` int(11) NOT NULL COMMENT 'Días de entrenamiento por semana',
-  `tipo_rutina` enum('metodologica','basica') DEFAULT 'metodologica',
+  `tipo_rutina` enum('metodologica','basica','basica_gym','casa') DEFAULT 'metodologica',
   `genero` enum('masculino','femenino','unisex') DEFAULT 'unisex',
   `nivel_experiencia` enum('principiante','intermedio','avanzado') DEFAULT 'principiante',
   `es_publico` tinyint(1) DEFAULT 0,
@@ -486,7 +525,10 @@ INSERT INTO `rutinas` (`id`, `usuario_id`, `nombre_rutina`, `descripcion`, `desc
 (11, 2, 'Push pull leg', 'adsf', 'asdf', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 22:05:59'),
 (12, 2, 'adf', 'adf', '', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-28 22:12:40'),
 (13, 2, 'booty power', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', '', 0.0, 0, 3, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-28 22:26:00'),
-(15, 2, 'booty power - Duplicado', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', NULL, 0.0, 0, 0, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-29 03:07:38');
+(15, 2, 'booty power - Duplicado', 'Esta rutina esta hecha enfocada al crecimiento de gluteos.', 'piernas 3 veces por semana', NULL, 0.0, 0, 0, 'metodologica', 'femenino', 'intermedio', 0, '2025-12-29 03:07:38'),
+(16, 1, 'mix puadf', 'asdfadf', '', '', 0.0, 0, 4, 'metodologica', 'unisex', 'principiante', 0, '2025-12-29 18:29:47'),
+(17, 1, 'df', 'asdf', 'asdf', '', 0.0, 0, 2, 'metodologica', 'unisex', 'principiante', 0, '2025-12-29 19:41:24'),
+(20, 1, 'Adapatación', 'Rutina basica para aprender patrones de movimientos', NULL, NULL, 0.0, 0, 0, 'basica_gym', 'unisex', 'principiante', 0, '2025-12-29 20:26:34');
 
 -- --------------------------------------------------------
 
@@ -543,15 +585,16 @@ CREATE TABLE `sesiones_ejercicio` (
 --
 
 INSERT INTO `sesiones_ejercicio` (`id`, `ejercicio_id`, `usuario_id`, `num_sesion`, `num_serie`, `peso`, `unidad_peso`, `repeticiones`, `evaluacion`, `fecha_registro`, `fecha_realizado`) VALUES
-(1, 11, 2, 1, 1, 100.00, 'kg', 12, 'bien', '2025-12-28 21:23:07', '2025-12-28'),
-(2, 11, 2, 1, 2, 50.00, 'kg', 10, 'mal', '2025-12-28 21:23:38', '2025-12-28'),
+(1, 11, 2, 1, 1, 100.00, 'kg', 12, 'mal', '2025-12-28 21:23:07', '2025-12-28'),
+(2, 11, 2, 1, 2, 50.00, 'kg', 10, 'bien', '2025-12-28 21:23:38', '2025-12-28'),
 (3, 11, 2, 1, 3, 30.00, 'kg', 12, 'regular', '2025-12-28 21:23:42', '2025-12-28'),
 (4, 12, 2, 1, 1, 100.00, 'kg', 15, NULL, '2025-12-28 22:17:59', '2025-12-28'),
 (5, 23, 2, 1, 1, 100.00, 'kg', 0, NULL, '2025-12-28 22:31:46', '2025-12-28'),
 (6, 23, 2, 2, 2, 200.00, 'kg', 0, NULL, '2025-12-28 22:31:51', '2025-12-28'),
 (7, 23, 2, 2, 1, 0.00, 'kg', 0, NULL, '2025-12-28 22:31:56', '2025-12-28'),
 (8, 13, 2, 1, 2, 123.00, 'kg', 0, NULL, '2025-12-28 23:46:06', '2025-12-28'),
-(9, 12, 2, 1, 2, 50.00, 'kg', 0, NULL, '2025-12-29 00:06:47', '2025-12-28');
+(9, 12, 2, 1, 2, 50.00, 'kg', 0, NULL, '2025-12-29 00:06:47', '2025-12-28'),
+(10, 11, 2, 2, 1, 100.00, 'kg', 15, 'mal', '2025-12-30 01:23:28', '2025-12-29');
 
 -- --------------------------------------------------------
 
@@ -637,6 +680,13 @@ ALTER TABLE `ejercicios`
 ALTER TABLE `ejercicios_basicos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `rutina_id` (`rutina_id`);
+
+--
+-- Indices de la tabla `ejercicios_rutina`
+--
+ALTER TABLE `ejercicios_rutina`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `dia_id` (`dia_id`);
 
 --
 -- Indices de la tabla `entrenador_clientes`
@@ -778,7 +828,7 @@ ALTER TABLE `contenido_aprendizaje`
 -- AUTO_INCREMENT de la tabla `dias_rutina`
 --
 ALTER TABLE `dias_rutina`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- AUTO_INCREMENT de la tabla `ejercicios`
@@ -791,6 +841,12 @@ ALTER TABLE `ejercicios`
 --
 ALTER TABLE `ejercicios_basicos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `ejercicios_rutina`
+--
+ALTER TABLE `ejercicios_rutina`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `entrenador_clientes`
@@ -826,7 +882,7 @@ ALTER TABLE `modulos_aprendizaje`
 -- AUTO_INCREMENT de la tabla `notas_sesion`
 --
 ALTER TABLE `notas_sesion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -850,7 +906,7 @@ ALTER TABLE `planes_pro`
 -- AUTO_INCREMENT de la tabla `rutinas`
 --
 ALTER TABLE `rutinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `rutinas_asignadas`
@@ -868,7 +924,7 @@ ALTER TABLE `sesiones_activas`
 -- AUTO_INCREMENT de la tabla `sesiones_ejercicio`
 --
 ALTER TABLE `sesiones_ejercicio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -919,6 +975,12 @@ ALTER TABLE `ejercicios`
 --
 ALTER TABLE `ejercicios_basicos`
   ADD CONSTRAINT `ejercicios_basicos_ibfk_1` FOREIGN KEY (`rutina_id`) REFERENCES `rutinas` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `ejercicios_rutina`
+--
+ALTER TABLE `ejercicios_rutina`
+  ADD CONSTRAINT `ejercicios_rutina_ibfk_1` FOREIGN KEY (`dia_id`) REFERENCES `dias_rutina` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `entrenador_clientes`
